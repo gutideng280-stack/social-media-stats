@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: social-media-stats-api
+    runtime: docker
+    plan: free
+    repo: https://github.com/YOUR_USERNAME/social-media-stats
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 10000

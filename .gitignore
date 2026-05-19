@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+
+# Secrets
+backend/facebook_cookies.txt
+*.cookie
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Render / Vercel
+.vercel
+
+# Debug / Test files
+backend/test_*.py
+backend/threads_test.html

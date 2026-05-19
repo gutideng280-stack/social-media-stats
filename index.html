@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社交媒体互动数据统计工具</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-field { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.2s ease; }
+        .input-field:focus { border-color: #38bdf8; outline: none; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .animate-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .platform-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .row-entry { display: flex; gap: 8px; align-items: center; padding: 8px; border-radius: 12px; transition: background 0.2s; }
+        .row-entry:hover { background: rgba(255,255,255,0.02); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <i data-lucide="bar-chart-2" class="text-sky-400"></i>
+                    社交媒体互动数据统计工具
+                </h1>
+                <p class="text-slate-400 mt-1 text-sm md:text-base">批量查询 X、Facebook、Instagram、Threads、哔哩哔哩、小红书的互动数据</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="btn-settings" class="glass-card px-4 py-2 rounded-xl hover:bg-slate-700 transition flex items-center gap-2 text-sm font-medium" title="配置后端 API 地址">
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
+                    API 设置
+                </button>
+                <button id="btn-demo" class="glass-card px-4 py-2 rounded-xl hover:bg-slate-700 transition flex items-center gap-2 text-sm font-medium">
+                    <i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i>
+                    填充演示
+                </button>
+                <button id="btn-export" class="glass-card px-4 py-2 rounded-xl hover:bg-slate-700 transition flex items-center gap-2 text-sm font-medium">
+                    <i data-lucide="download" class="w-4 h-4 text-sky-400"></i>
+                    导出 CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <!-- Left: Input Section (3/5) -->
+            <section class="lg:col-span-3 space-y-6">
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold flex items-center gap-2 text-white">
+                            <i data-lucide="list-checks" class="w-5 h-5 text-sky-400"></i>
+                            查询配置
+                        </h2>
+                        <button id="btn-add-row" class="text-sky-400 hover:text-sky-300 text-sm font-medium flex items-center gap-1 transition">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                            添加输入行
+                        </button>
+                    </div>
+                    <div id="query-container" class="space-y-2">
+                        <!-- Rows will be injected here -->
+                    </div>
+                </div>
+
+                <button id="btn-run" class="w-full py-4 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-2xl shadow-lg shadow-sky-500/20 transition-all transform hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-3 text-lg">
+                    <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+                    开始批量查询
+                </button>
+
+                <!-- Supported Platforms Info -->
+                <div class="glass-card p-5 rounded-2xl">
+                    <h3 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-sky-400"></i>
+                        支持状态说明
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                        <div class="flex items-center gap-2 text-green-400">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            X (推特)：自动获取
+                        </div>
+                        <div class="flex items-center gap-2 text-green-400">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            Facebook：自动获取
+                        </div>
+                        <div class="flex items-center gap-2 text-green-400">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            Instagram：自动获取
+                        </div>
+                        <div class="flex items-center gap-2 text-green-400">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            Threads：自动获取
+                        </div>
+                        <div class="flex items-center gap-2 text-green-400">
+                            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                            哔哩哔哩：自动获取
+                        </div>
+                        <div class="flex items-center gap-2 text-yellow-400">
+                            <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                            小红书：需手动填入
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-xs mt-3">
+                        Facebook/Instagram 自动获取仅支持公开帖子。若获取失败，可在结果中手动填入数据。
+                    </p>
+                </div>
+            </section>
+
+            <!-- Right: Results Section (2/5) -->
+            <section class="lg:col-span-2">
+                <div class="glass-card p-6 rounded-2xl min-h-[400px]">
+                    <h2 class="text-lg font-semibold flex items-center gap-2 text-white mb-6">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-sky-400"></i>
+                        查询结果
+                    </h2>
+                    <div id="results-container" class="table-container">
+                        <div id="empty-state" class="flex flex-col items-center justify-center py-20 text-slate-500">
+                            <i data-lucide="database" class="w-12 h-12 mb-4 opacity-20"></i>
+                            <p class="text-center">暂无数据<br>请添加链接后点击"开始批量查询"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="mt-12 text-center text-slate-600 text-sm border-t border-slate-800 pt-6">
+            <p>&copy; 2026 社交媒体互动数据统计工具</p>
+        </footer>
+    </div>
+
+    <script>
+        const App = {
+            elements: {},
+            resultsData: [],
+
+            platforms: {
+                twitter: { name: 'X (推特)', color: 'bg-slate-800 text-white', icon: 'twitter' },
+                facebook: { name: 'Facebook', color: 'bg-blue-600 text-white', icon: 'facebook' },
+                instagram: { name: 'Instagram', icon: 'instagram' },
+                threads: { name: 'Threads', color: 'bg-slate-900 text-white', icon: 'at-sign' },
+                bilibili: { name: '哔哩哔哩', color: 'bg-pink-500 text-white', icon: 'play' },
+                xiaohongshu: { name: '小红书', color: 'bg-red-500 text-white', icon: 'book-open' }
+            },
+
+            init() {
+                this.cacheElements();
+                this.setupListeners();
+                this.initDefaultRows();
+                lucide.createIcons();
+            },
+
+            cacheElements() {
+                this.elements = {
+                    container: document.getElementById('query-container'),
+                    results: document.getElementById('results-container'),
+                    btnRun: document.getElementById('btn-run'),
+                    btnAdd: document.getElementById('btn-add-row'),
+                    btnDemo: document.getElementById('btn-demo'),
+                    btnExport: document.getElementById('btn-export'),
+                    btnSettings: document.getElementById('btn-settings'),
+                    emptyState: document.getElementById('empty-state')
+                };
+            },
+
+            setupListeners() {
+                this.elements.btnAdd.addEventListener('click', () => this.addRow());
+                this.elements.btnRun.addEventListener('click', () => this.runAnalysis());
+                this.elements.btnDemo.addEventListener('click', () => this.runDemo());
+                this.elements.btnExport.addEventListener('click', () => this.exportToCSV());
+                this.elements.btnSettings.addEventListener('click', () => this.showSettings());
+            },
+
+            initDefaultRows() {
+                // 默认8个：3推特、2 Facebook、1 ins、1 threads、1 B站
+                const defaults = ['twitter', 'twitter', 'twitter', 'facebook', 'facebook', 'instagram', 'threads', 'bilibili'];
+                defaults.forEach(p => this.addRow(p));
+            },
+
+            addRow(platform = 'twitter') {
+                const row = document.createElement('div');
+                row.className = 'row-entry animate-in';
+                row.innerHTML = `
+                    <div class="w-36 shrink-0">
+                        <select class="platform-select w-full input-field rounded-lg px-3 py-2.5 text-sm appearance-none bg-transparent focus:ring-2 focus:ring-sky-500/50 cursor-pointer">
+                            <option value="twitter" ${platform === 'twitter' ? 'selected' : ''}>X (推特)</option>
+                            <option value="facebook" ${platform === 'facebook' ? 'selected' : ''}>Facebook</option>
+                            <option value="instagram" ${platform === 'instagram' ? 'selected' : ''}>Instagram</option>
+                            <option value="threads" ${platform === 'threads' ? 'selected' : ''}>Threads</option>
+                            <option value="bilibili" ${platform === 'bilibili' ? 'selected' : ''}>哔哩哔哩</option>
+                            <option value="xiaohongshu" ${platform === 'xiaohongshu' ? 'selected' : ''}>小红书</option>
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <input type="text" placeholder="在此粘贴帖子链接..." class="url-input w-full input-field rounded-lg px-3 py-2.5 text-sm">
+                    </div>
+                    <button class="remove-row-btn text-slate-500 hover:text-red-400 transition p-1 shrink-0" title="删除此行">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                `;
+
+                row.querySelector('.remove-row-btn').addEventListener('click', () => {
+                    row.remove();
+                    lucide.createIcons();
+                });
+
+                this.elements.container.appendChild(row);
+                lucide.createIcons();
+            },
+
+            async runAnalysis() {
+                const rows = Array.from(this.elements.container.querySelectorAll('.row-entry'));
+                if (rows.length === 0) return;
+
+                const queries = Array.from(rows).map(row => ({
+                    platform: row.querySelector('.platform-select').value,
+                    url: row.querySelector('.url-input').value.trim()
+                })).filter(q => q.url);
+
+                if (queries.length === 0) {
+                    this.renderTable();
+                    return;
+                }
+
+                this.elements.results.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-sky-400">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500 mb-4"></div>
+                        <p class="animate-pulse">正在查询各平台互动数据...</p>
+                    </div>
+                `;
+
+                this.resultsData = [];
+
+                const API_BASE = (() => {
+                    const custom = localStorage.getItem('social_stats_api_base');
+                    if (custom) return custom.replace(/\/$/, '');
+                    if (window.location.protocol === 'file:') return 'http://localhost:5003';
+                    return '';
+                })();
+
+                // 先检测后端是否可用
+                let backendAvailable = false;
+                try {
+                    const healthResp = await fetch(`${API_BASE}/health`, { method: 'GET', signal: AbortSignal.timeout(5000) });
+                    backendAvailable = healthResp.ok;
+                } catch (e) {
+                    backendAvailable = false;
+                }
+
+                if (!backendAvailable) {
+                    this.elements.results.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                            <i data-lucide="plug-zap" class="w-12 h-12 mb-4 text-slate-600"></i>
+                            <p class="text-center font-medium mb-2">无法连接到后端服务</p>
+                            <p class="text-xs text-slate-500 mb-4">当前 API 地址: ${API_BASE || '同域'}<br>请检查后端是否运行，或点击右上角「API 设置」配置正确的后端地址。</p>
+                            <button onclick="App.showSettings()" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white rounded-lg text-sm font-medium transition">打开 API 设置</button>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/analyze`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ queries })
+                    });
+
+                    if (!response.ok) throw new Error('后端服务不可用');
+
+                    this.resultsData = await response.json();
+                } catch (e) {
+                    console.error(e);
+                    this.elements.results.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                            <i data-lucide="alert-triangle" class="w-12 h-12 mb-4 text-yellow-600"></i>
+                            <p class="text-center font-medium mb-2">查询出错</p>
+                            <p class="text-xs text-slate-500">${e.message}</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                this.renderTable();
+            },
+
+            renderTable() {
+                if (this.resultsData.length === 0) {
+                    this.elements.results.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-20 text-slate-500">
+                            <i data-lucide="database" class="w-12 h-12 mb-4 opacity-20"></i>
+                            <p class="text-center">未找到有效数据<br>请确保链接正确</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="table-container">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th class="text-slate-500 w-10">#</th>
+                                    <th class="text-slate-500">平台</th>
+                                    <th class="text-slate-500">标题</th>
+                                    <th class="text-slate-500">点赞</th>
+                                    <th class="text-slate-500">评论</th>
+                                    <th class="text-slate-500">转发/收藏</th>
+                                    <th class="text-slate-500">发布时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                this.resultsData.forEach((item, index) => {
+                    const pConfig = this.platforms[item.platform] || { name: item.platform, color: 'bg-slate-600 text-white' };
+                    const isManual = item.isManual || item.isError;
+                    html += `
+                        <tr class="hover:bg-white/5 transition-colors group" data-index="${index}">
+                            <td class="font-mono text-sky-400">${index + 1}</td>
+                            <td><span class="platform-badge ${pConfig.color || 'bg-slate-600 text-white'}">${pConfig.name}</span></td>
+                            <td class="text-white font-medium truncate max-w-[120px]" title="${item.title || ''}">${item.title || '-'}</td>
+                            <td class="${isManual ? 'text-slate-500' : 'text-green-400 font-medium'}">${this.formatNum(item.likes)}</td>
+                            <td class="${isManual ? 'text-slate-500' : 'text-sky-400'}">${this.formatNum(item.comments)}</td>
+                            <td class="${isManual ? 'text-slate-500' : 'text-orange-400'}">${this.formatNum(item.shares)}</td>
+                            <td class="text-slate-500 text-xs">${item.date || '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table></div>`;
+
+                // 添加手动编辑提示
+                const hasManual = this.resultsData.some(r => r.isManual || r.isError);
+                if (hasManual) {
+                    html += `
+                        <div class="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs flex items-start gap-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="font-medium">部分平台数据需手动确认</p>
+                                <p class="text-yellow-400/70 mt-1">黄色/灰色数值表示该平台暂不支持自动获取，建议您手动核对后填入准确数据。</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                this.elements.results.innerHTML = html;
+                lucide.createIcons();
+            },
+
+            getPlatformClass(p) {
+                const map = {
+                    twitter: 'bg-slate-800 text-white',
+                    facebook: 'bg-blue-600 text-white',
+                    instagram: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
+                    threads: 'bg-slate-900 text-white',
+                    bilibili: 'bg-pink-500 text-white',
+                    xiaohongshu: 'bg-red-500 text-white'
+                };
+                return map[p] || 'bg-slate-600 text-white';
+            },
+
+            formatNum(num) {
+                if (num === undefined || num === null || num === '-') return '-';
+                const n = parseInt(num);
+                if (isNaN(n)) return num;
+                if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+                return n.toLocaleString();
+            },
+
+            runDemo() {
+                const demoUrls = {
+                    twitter: 'https://x.com/elonmusk/status/1891709282635039139',
+                    facebook: 'https://www.facebook.com/zuck/posts/...',
+                    instagram: 'https://www.instagram.com/p/ABC123.../',
+                    threads: 'https://www.threads.net/@username/post/ABC123',
+                    bilibili: 'https://www.bilibili.com/video/BV19SRSBeE6F',
+                    xiaohongshu: 'https://www.xiaohongshu.com/explore/...'
+                };
+                const rows = Array.from(this.elements.container.querySelectorAll('.row-entry'));
+                rows.forEach(row => {
+                    const platform = row.querySelector('.platform-select').value;
+                    row.querySelector('.url-input').value = demoUrls[platform] || '';
+                });
+                this.runAnalysis();
+            },
+
+            exportToCSV() {
+                if (this.resultsData.length === 0) {
+                    alert('没有可导出的数据！');
+                    return;
+                }
+                let csv = "\ufeff编号,平台,标题,点赞数,评论数,转发收藏数,发布时间\n";
+                this.resultsData.forEach((item, i) => {
+                    const pName = this.platforms[item.platform]?.name || item.platform;
+                    csv += `${i+1},${pName},"${(item.title || '').replace(/"/g, '""')}",${item.likes || 0},${item.comments || 0},${item.shares || 0},${item.date || '-'}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `social_stats_${new Date().getTime()}.csv`;
+                a.click();
+            },
+
+            showSettings() {
+                const current = localStorage.getItem('social_stats_api_base') || '';
+                const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+                const defaultHint = isLocal ? 'http://localhost:5003' : 'https://your-api.onrender.com';
+
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="glass-card p-6 rounded-2xl max-w-md w-full mx-4 animate-in">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <i data-lucide="settings" class="w-5 h-5 text-sky-400"></i>
+                                API 后端设置
+                            </h3>
+                            <button class="close-modal text-slate-400 hover:text-white transition">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1.5">后端 API 地址</label>
+                                <input type="text" id="setting-api-input" value="${current}" placeholder="${defaultHint}" 
+                                    class="w-full input-field rounded-lg px-3 py-2.5 text-sm text-white">
+                                <p class="text-xs text-slate-500 mt-1.5">
+                                    ${isLocal ? '本地开发默认使用 localhost:5003' : '部署到 Vercel/Netlify 等静态托管时，需填入 Render 等后端地址'}
+                                </p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="btn-test-api" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
+                                    <i data-lucide="activity" class="w-4 h-4"></i>
+                                    测试连接
+                                </button>
+                                <button id="btn-save-api" class="flex-1 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
+                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    保存
+                                </button>
+                            </div>
+                            <div id="api-test-result" class="text-xs min-h-[1.5em]"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                lucide.createIcons();
+
+                const close = () => modal.remove();
+                modal.querySelector('.close-modal').addEventListener('click', close);
+                modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+                const input = modal.querySelector('#setting-api-input');
+                const resultDiv = modal.querySelector('#api-test-result');
+
+                modal.querySelector('#btn-test-api').addEventListener('click', async () => {
+                    const url = input.value.trim().replace(/\/$/, '');
+                    resultDiv.innerHTML = '<span class="text-sky-400">测试中...</span>';
+                    try {
+                        const resp = await fetch(`${url || ''}/health`, { method: 'GET', signal: AbortSignal.timeout(8000) });
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            resultDiv.innerHTML = `<span class="text-green-400">连接成功！后端版本: ${data.version || 'unknown'}</span>`;
+                        } else {
+                            resultDiv.innerHTML = `<span class="text-red-400">连接失败: HTTP ${resp.status}</span>`;
+                        }
+                    } catch (e) {
+                        resultDiv.innerHTML = `<span class="text-red-400">连接失败: ${e.message}</span>`;
+                    }
+                });
+
+                modal.querySelector('#btn-save-api').addEventListener('click', () => {
+                    const url = input.value.trim().replace(/\/$/, '');
+                    if (url) {
+                        localStorage.setItem('social_stats_api_base', url);
+                    } else {
+                        localStorage.removeItem('social_stats_api_base');
+                    }
+                    close();
+                    // 如果已经有查询结果，提示刷新
+                    if (this.resultsData.length > 0) {
+                        this.elements.results.innerHTML = `
+                            <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                                <i data-lucide="check-circle" class="w-10 h-10 mb-3 text-green-400"></i>
+                                <p>API 地址已更新，请重新查询。</p>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                    }
+                });
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+</html>

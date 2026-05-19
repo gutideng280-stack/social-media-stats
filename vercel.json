@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "social-media-stats",
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ]
+}
