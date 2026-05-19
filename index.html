@@ -16,7 +16,7 @@
         .input-field:focus { border-color: #38bdf8; outline: none; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
         .animate-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .table-container { overflow-x: auto; }
+        .table-container { overflow-x: visible; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         th { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -26,7 +26,7 @@
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-full mx-auto px-4 md:px-8">
         <!-- Header -->
         <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -311,12 +311,12 @@
                             <thead>
                                 <tr>
                                     <th class="text-slate-500 w-10">#</th>
-                                    <th class="text-slate-500">平台</th>
-                                    <th class="text-slate-500">标题</th>
-                                    <th class="text-slate-500">点赞</th>
-                                    <th class="text-slate-500">评论</th>
-                                    <th class="text-slate-500">转发/收藏</th>
-                                    <th class="text-slate-500">发布时间</th>
+                                    <th class="text-slate-500 w-24">平台</th>
+                                    <th class="text-slate-500 min-w-[300px]">标题</th>
+                                    <th class="text-slate-500 w-20">点赞</th>
+                                    <th class="text-slate-500 w-20">评论</th>
+                                    <th class="text-slate-500 w-24">转发/收藏</th>
+                                    <th class="text-slate-500 w-28">发布时间</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -329,7 +329,7 @@
                         <tr class="hover:bg-white/5 transition-colors group" data-index="${index}">
                             <td class="font-mono text-sky-400">${index + 1}</td>
                             <td><span class="platform-badge ${pConfig.color || 'bg-slate-600 text-white'}">${pConfig.name}</span></td>
-                            <td class="text-white font-medium truncate max-w-[120px]" title="${item.title || ''}">${item.title || '-'}</td>
+                            <td class="text-white font-medium truncate max-w-[400px]" title="${item.title || ''}">${item.title || '-'}</td>
                             <td class="${isManual ? 'text-slate-500' : 'text-green-400 font-medium'}">${this.formatNum(item.likes)}</td>
                             <td class="${isManual ? 'text-slate-500' : 'text-sky-400'}">${this.formatNum(item.comments)}</td>
                             <td class="${isManual ? 'text-slate-500' : 'text-orange-400'}">${this.formatNum(item.shares)}</td>
