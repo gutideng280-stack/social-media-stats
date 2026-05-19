@@ -53,9 +53,9 @@
         </header>
 
         <!-- Main Content -->
-        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <!-- Left: Input Section (3/5) -->
-            <section class="lg:col-span-3 space-y-6">
+        <main class="flex flex-col gap-8">
+            <!-- Input Section -->
+            <section class="space-y-6">
                 <div class="glass-card p-6 rounded-2xl">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-semibold flex items-center gap-2 text-white">
@@ -115,8 +115,8 @@
                 </div>
             </section>
 
-            <!-- Right: Results Section (2/5) -->
-            <section class="lg:col-span-2">
+            <!-- Results Section -->
+            <section class="w-full">
                 <div class="glass-card p-6 rounded-2xl min-h-[400px]">
                     <h2 class="text-lg font-semibold flex items-center gap-2 text-white mb-6">
                         <i data-lucide="bar-chart-3" class="w-5 h-5 text-sky-400"></i>
@@ -312,11 +312,11 @@
                                 <tr>
                                     <th class="text-slate-500 w-10">#</th>
                                     <th class="text-slate-500 w-24">平台</th>
-                                    <th class="text-slate-500 min-w-[300px]">标题</th>
-                                    <th class="text-slate-500 w-20">点赞</th>
-                                    <th class="text-slate-500 w-20">评论</th>
-                                    <th class="text-slate-500 w-24">转发/收藏</th>
-                                    <th class="text-slate-500 w-28">发布时间</th>
+                                    <th class="text-slate-500 min-w-[400px]">标题</th>
+                                    <th class="text-slate-500 w-24 text-center">点赞</th>
+                                    <th class="text-slate-500 w-24 text-center">评论</th>
+                                    <th class="text-slate-500 w-28 text-center">转发/收藏</th>
+                                    <th class="text-slate-500 w-32 text-center">发布时间</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -327,13 +327,13 @@
                     const isManual = item.isManual || item.isError;
                     html += `
                         <tr class="hover:bg-white/5 transition-colors group" data-index="${index}">
-                            <td class="font-mono text-sky-400">${index + 1}</td>
-                            <td><span class="platform-badge ${pConfig.color || 'bg-slate-600 text-white'}">${pConfig.name}</span></td>
+                            <td class="font-mono text-sky-400 text-center">${index + 1}</td>
+                            <td class="text-center"><span class="platform-badge ${pConfig.color || 'bg-slate-600 text-white'}">${pConfig.name}</span></td>
                             <td class="text-white font-medium truncate max-w-[400px]" title="${item.title || ''}">${item.title || '-'}</td>
-                            <td class="${isManual ? 'text-slate-500' : 'text-green-400 font-medium'}">${this.formatNum(item.likes)}</td>
-                            <td class="${isManual ? 'text-slate-500' : 'text-sky-400'}">${this.formatNum(item.comments)}</td>
-                            <td class="${isManual ? 'text-slate-500' : 'text-orange-400'}">${this.formatNum(item.shares)}</td>
-                            <td class="text-slate-500 text-xs">${item.date || '-'}</td>
+                            <td class="${isManual ? 'text-slate-500' : 'text-green-400 font-medium'} text-center">${this.formatNum(item.likes)}</td>
+                            <td class="${isManual ? 'text-slate-500' : 'text-sky-400'} text-center">${this.formatNum(item.comments)}</td>
+                            <td class="${isManual ? 'text-slate-500' : 'text-orange-400'} text-center">${this.formatNum(item.shares)}</td>
+                            <td class="text-slate-500 text-xs text-center">${item.date || '-'}</td>
                         </tr>
                     `;
                 });
