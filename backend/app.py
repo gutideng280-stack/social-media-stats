@@ -23,6 +23,16 @@ except ImportError:
     INSTALOADER_AVAILABLE = False
     print("[WARN] instaloader not installed, Instagram auto-fetch disabled")
 
+# 启动时打印库可用状态
+print(f"[INIT] Libraries: facebook={FACEBOOK_AVAILABLE}, instagram={INSTALOADER_AVAILABLE}")
+
+# 检查 Playwright 可用性
+try:
+    from playwright.sync_api import sync_playwright
+    print("[INIT] Playwright available")
+except ImportError:
+    print("[WARN] Playwright not installed, Threads auto-fetch disabled")
+
 app = Flask(__name__)
 CORS(app)
 
@@ -529,7 +539,9 @@ def scrape_instagram(url):
             "source": "instaloader"
         }
     except Exception as e:
+        import traceback
         print(f"[Instagram Error] {e}")
+        print(traceback.format_exc())
         return {
             "title": f"Instagram 帖子 {shortcode}",
             "likes": 0, "comments": 0, "shares": 0,
@@ -676,7 +688,9 @@ def scrape_threads(url):
             "source": "threads-playwright" + ("-repost" if is_repost else "")
         }
     except Exception as e:
+        import traceback
         print(f"[Threads Error] {e}")
+        print(traceback.format_exc())
         return {
             "title": f"Threads 帖子 {post_id}",
             "likes": 0, "comments": 0, "shares": 0,
