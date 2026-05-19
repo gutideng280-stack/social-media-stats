@@ -243,7 +243,7 @@
                     const custom = localStorage.getItem('social_stats_api_base');
                     if (custom) return custom.replace(/\/$/, '');
                     if (window.location.protocol === 'file:') return 'http://localhost:5003';
-                    return '';
+                    return 'https://social-media-stats-api.onrender.com';
                 })();
 
                 // 先检测后端是否可用
@@ -416,7 +416,7 @@
             showSettings() {
                 const current = localStorage.getItem('social_stats_api_base') || '';
                 const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
-                const defaultHint = isLocal ? 'http://localhost:5003' : 'https://your-api.onrender.com';
+                const defaultHint = isLocal ? 'http://localhost:5003' : 'https://social-media-stats-api.onrender.com';
 
                 const modal = document.createElement('div');
                 modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50';
