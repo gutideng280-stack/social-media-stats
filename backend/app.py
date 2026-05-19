@@ -569,28 +569,38 @@ def scrape_threads(url):
         }
 
     try:
+        print(f"[Threads Debug] Starting scrape for {post_id}")
         with sync_playwright() as p:
+            print("[Threads Debug] Playwright started")
             browser = p.chromium.launch(headless=True)
+            print("[Threads Debug] Browser launched")
             context = browser.new_context(
                 viewport={"width": 1920, "height": 1080},
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             )
             page = context.new_page()
+            print(f"[Threads Debug] Navigating to {url}")
             page.goto(url, wait_until="networkidle", timeout=30000)
+            print("[Threads Debug] Page loaded")
 
             try:
                 page.wait_for_selector("[data-pressable-container=true]", timeout=10000)
+                print("[Threads Debug] Pressable container found")
             except:
-                pass
+                print("[Threads Debug] Pressable container NOT found (timeout)")
 
             html = page.content()
+            print(f"[Threads Debug] HTML length: {len(html)}")
             browser.close()
+            print("[Threads Debug] Browser closed")
 
         # Extract thread data from data-sjs scripts
         scripts = re.findall(r'<script[^>]*data-sjs[^>]*>(.*?)</script>', html, re.DOTALL)
+        print(f"[Threads Debug] Found {len(scripts)} data-sjs scripts")
         thread_items = None
-        for s in scripts:
+        for i, s in enumerate(scripts):
             if '"thread_items"' in s:
+                print(f"[Threads Debug] Script {i} contains 'thread_items'")
                 try:
                     data = json.loads(s)
                     # Recursively find thread_items
@@ -610,11 +620,16 @@ def scrape_threads(url):
                         return None
                     thread_items = find_threads(data)
                     if thread_items:
+                        print(f"[Threads Debug] Found thread_items with {len(thread_items)} items")
                         break
-                except:
+                except Exception as parse_err:
+                    print(f"[Threads Debug] Script {i} JSON parse error: {parse_err}")
                     continue
 
         if not thread_items:
+            print("[Threads Debug] No thread_items found in any script")
+            # Save first 500 chars of HTML for debugging
+            print(f"[Threads Debug] HTML preview: {html[:500]}")
             return {
                 "title": f"Threads 帖子 {post_id}",
                 "likes": 0, "comments": 0, "shares": 0,
