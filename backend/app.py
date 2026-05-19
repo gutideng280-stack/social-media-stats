@@ -501,6 +501,8 @@ def scrape_instagram(url):
     if not shortcode:
         return None
 
+    print(f"[Instagram Debug] INSTALOADER_AVAILABLE={INSTALOADER_AVAILABLE}, shortcode={shortcode}")
+
     if not INSTALOADER_AVAILABLE:
         return {
             "title": f"Instagram 帖子 {shortcode}",
@@ -511,13 +513,16 @@ def scrape_instagram(url):
         }
 
     try:
+        print("[Instagram Debug] Creating Instaloader instance...")
         # 使用 instaloader 获取帖子数据
         L = instaloader.Instaloader()
         # 禁用输出干扰
         L.context.log = lambda *args, **kwargs: None
         L.context.error = lambda *args, **kwargs: None
 
+        print(f"[Instagram Debug] Fetching post from shortcode: {shortcode}")
         post = instaloader.Post.from_shortcode(L.context, shortcode)
+        print(f"[Instagram Debug] Post fetched. Likes={post.likes}, Comments={post.comments}")
 
         # 获取发布时间
         date_str = '-'
